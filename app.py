@@ -5,10 +5,10 @@ import pandas as pd
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 終極暴力 CSS 注入：全面抹除 #FF4B4B 紅色，強制置中按鈕
+# 2. 終極 CSS 注入：強制鎖定海軍藍 (#2A5290)，消滅全部紅色，強制按鈕置中
 st.markdown("""
     <style>
-    /* 全域背景色 */
+    /* 全域背景色微調 */
     .main { background-color: #fcfbfa; }
     
     /* 核心變數強力壓制 */
@@ -47,7 +47,7 @@ st.markdown("""
         background-color: #2A5290 !important;
     }
     
-    /* 進度條、網頁骨架的所有紅色全面攔截 */
+    /* 進度條、網頁分頁標籤（Tabs）的所有紅色全面攔截 */
     div[data-baseweb="progress-bar"] > div { background-color: #2A5290 !important; }
     div[data-baseweb="tab-list"] button[aria-selected="true"] {
         color: #2A5290 !important;
@@ -133,7 +133,7 @@ if not st.session_state.game_started:
         </div>
     """, unsafe_allow_html=True)
     
-    # 這裡的按鈕會直接被上面的 CSS 強制捉到網頁正中央，不再受 columns 侷限！
+    # 這裡的按鈕會直接被 CSS 強制捉到網頁正中央
     if st.button("點擊開始遊戲", key="start_game_trigger"):
         st.session_state.game_started = True
         st.rerun()
@@ -158,4 +158,19 @@ except Exception as e:
 st.markdown("""
     <div style="padding: 10px 0; margin-bottom: 20px;">
         <h2 style="color: #2A5290; font-weight: 800;">AI 咖啡廳策略模擬戰場</h2>
-        <p style="color: #718096; margin-top: -5px;">配置專專
+        <p style="color: #718096; margin-top: -5px;">配置專屬指標，隨機森林模型將即時為妳的商業決策打分數！</p>
+    </div>
+""", unsafe_allow_html=True)
+
+tab1, tab2 = st.tabs(["關卡一：自由經營模擬市集", "關卡二：17點策略極限挑戰賽"])
+
+def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val):
+    city_geo_centers = {
+        "changhua": {"lat": 24.078, "lng": 120.551},
+        "taichung": {"lat": 24.151, "lng": 120.664},
+        "kaohsiung": {"lat": 22.614, "lng": 120.306},
+    }
+    lat = city_geo_centers[city]["lat"]
+    lng = city_geo_centers[city]["lng"]
+    
+    input_dict =
