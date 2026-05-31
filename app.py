@@ -2,17 +2,38 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# 1. 設定網頁標題與風格
+# 1. 網頁頂部設定（設定為寬版、高質感標題）
 st.set_page_config(
     page_title="AI 咖啡廳改造大亨",
     page_icon="☕",
-    layout="centered"
+    layout="wide"
 )
 
-# 2. 載入我們從 Colab 下載的模型檔
+# 自訂網頁 CSS 樣式（美化拉桿與卡片底色）
+st.markdown("""
+    <style>
+    .main { background-color: #f8fafc; }
+    .stSlider > div > div > div > div { background-color: #319795; }
+    div.stButton > button:first-child {
+        background-color: #319795; color: white; font-weight: bold;
+        border-radius: 8px; width: 100%; height: 45px; border: none;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+        transition: all 0.15s ease;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #2c7a7b; transform: translateY(-1px);
+    }
+    .custom-card {
+        background-color: #ffffff; padding: 25px; 
+        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0; margin-bottom: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# 2. 載入模型
 @st.cache_resource
 def load_model():
-    # 請確保 cafe_model.pkl 和這個 app.py 放在同一個資料夾
     return joblib.load("cafe_model.pkl")
 
 try:
@@ -20,17 +41,19 @@ try:
     model = saved_data["model"]
     feature_cols = saved_data["feature_cols"]
 except Exception as e:
-    st.error("❌ 找不到模型檔案 cafe_model.pkl，請確保它跟 app.py 放在一起喔！")
+    st.error("❌ 找不到模型檔案 cafe_model.pkl，請確保它跟 app.py 放在同一個 GitHub 庫喔！")
     st.stop()
 
-# 3. 網頁大標題與精美介紹
-st.title("☕ AI 咖啡廳改造大亨")
-st.subheader("利用隨機森林大數據，精準預測妳的客滿率！")
+# 3. 頂級奢華網頁大標題
+st.markdown("""
+    <div style="text-align: center; padding: 20px 0px;">
+        <h1 style="color: #1a202c; font-size: 3rem; font-weight: 800; margin-bottom: 5px;">☕ AI 咖啡廳改造大亨</h1>
+        <p style="color: #718096; font-size: 1.2rem;">利用隨機森林大數據，精準預測妳的店面客滿率！</p>
+        <hr style="border: 0; height: 2px; background: linear-gradient(to right, rgba(0,0,0,0), #319795, rgba(0,0,0,0)); margin-top: 20px;">
+    </div>
+""", unsafe_allow_html=True)
 
-# 透過 Streamlit 的 Tabs 標籤頁功能，把兩個遊戲優雅地分開
-tab1, tab2 = st.tabs(["🎮 關卡一：自由經營模擬", "🔥 關卡二：17點策略挑戰賽"])
-
-# 預測推理的核心函式
+# 預測運算核心
 def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val):
     city_geo_centers = {
         "changhua": {"lat": 24.078, "lng": 120.551},
@@ -44,7 +67,6 @@ def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val
         "wifi": wifi, "quiet": quiet, "tasty": tasty, "cheap": cheap, "music": music,
         "latitude": lat, "longitude": lng
     }
-    
     for col in feature_cols:
         if col not in input_dict:
             if col == f"city_{city}": input_dict[col] = 1
@@ -54,7 +76,6 @@ def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val
             else: input_dict[col] = 0
             
     input_df = pd.DataFrame([input_dict])
-    # 確保欄位順序完全一致
     missing_cols = set(feature_cols) - set(input_df.columns)
     for c in missing_cols: input_df[c] = 0
     input_df = input_df[feature_cols]
@@ -62,83 +83,124 @@ def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val
     prob = model.predict(input_df)[0]
     return max(0.0, min(1.0, prob))
 
+# 4. 建立美美的 Tabs 標籤頁
+tab1, tab2 = st.tabs(["🎮 自由經營模擬市集", "🔥 17點策略極限挑戰賽"])
+
 # =====================================================================
 # 🎮 Tab 1：自由經營模擬
 # =====================================================================
 with tab1:
-    st.markdown("### 自由調整參數，觀察大數據的客滿趨勢")
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+    st.markdown("### 🛠️ 自由調配經營藍圖")
+    st.caption("在這裡妳可以無限制地調整參數，試探各個商圈客人的喜好大數據。")
     
-    g1_city = st.selectbox("📍 選擇創業城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化縣" if x=="changhua" else "台中市" if x=="taichung" else "高雄市", key="g1_city")
+    g1_city = st.selectbox("📍 欲創立店面的目標城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化市核心商圈" if x=="changhua" else "台中市精華商圈" if x=="taichung" else "高雄市三多商圈")
     
+    st.markdown("#### 🔹 店內品質設定（1分最差、5分完美）")
     col1, col2 = st.columns(2)
     with col1:
-        g1_wifi = st.slider("📶 WiFi穩定度 (5最佳)", 1, 5, 3, key="g1_wifi")
-        g1_quiet = st.slider("🤫 安靜程度 (5最佳)", 1, 5, 3, key="g1_quiet")
-        g1_tasty = st.slider("☕ 美味程度 (5最佳)", 1, 5, 3, key="g1_tasty")
+        g1_wifi = st.slider("📶 高速 WiFi 穩定度", 1, 5, 3, key="g1_w")
+        g1_quiet = st.slider("🤫 環境安靜、適宜工作度", 1, 5, 3, key="g1_q")
+        g1_tasty = st.slider("☕ 咖啡與甜點美味程度", 1, 5, 3, key="g1_t")
     with col2:
-        g1_cheap = st.slider("💰 CP值/划算 (5最佳)", 1, 5, 3, key="g1_cheap")
-        g1_music = st.slider("🎵 音樂舒適 (5最佳)", 1, 5, 3, key="g1_music")
-        g1_socket = st.radio("🔌 插座服務", ["不提供", "提供"], index=1, key="g1_socket")
-        g1_limit = st.radio("⏳ 限時規定", ["不限時", "限時"], index=0, key="g1_limit")
+        g1_cheap = st.slider("💰 價格親民度 / CP值", 1, 5, 3, key="g1_c")
+        g1_music = st.slider("🎵 店內背景音樂舒適度", 1, 5, 3, key="g1_m")
+    
+    st.markdown("#### 🔹 消費者權益福利")
+    col3, col4 = st.columns(2)
+    with col3:
+        g1_socket = st.radio("🔌 每個座位是否提供免費插座", ["不提供", "提供"], index=1, horizontal=True)
+    with col4:
+        g1_limit = st.radio("⏳ 客滿時的用餐時間限制規定", ["不限時", "限時"], index=0, horizontal=True)
         
-    if st.button("🚀 開始 AI 經營模擬", type="primary", key="g1_btn"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    if st.button("🚀 啟動 AI 大數據經營模擬", key="btn1"):
         s_val = 1 if g1_socket == "提供" else 0
         l_val = 1 if g1_limit == "限時" else 0
         prob = get_prediction(g1_city, g1_wifi, g1_quiet, g1_tasty, g1_cheap, g1_music, s_val, l_val)
         
-        st.metric(label="🎯 預估『客滿機率』", value=f"{prob * 100:.2f}%")
-        if prob > 0.75: st.balloons(); st.success("🏆 【傳奇神店】太強了！服務與品質皆為頂級，店門口排隊排到馬路上！")
-        elif prob > 0.45: st.success("👍 【穩定獲利】表現不錯！店內高朋滿座，基本客源非常穩固。")
-        elif prob > 0.20: st.warning("⚠️ 【勉強度日】生意冷清... 建議檢查一下配置是否有優化空間？")
-        else: st.error("🚨 【面臨倒閉】慘不忍睹！客滿率極低，請立刻重新調整經營品質！")
+        # 精美結果圖卡
+        st.markdown("---")
+        st.metric(label="📊 預估平均「客滿機率」", value=f"{prob * 100:.2f}%")
+        
+        if prob > 0.75:
+            st.balloons()
+            st.success("🏆 【傳奇神店】太強了！服務與品質皆為頂級，店門口排隊排到馬路上！")
+        elif prob > 0.45:
+            st.success("👍 【穩定獲利】表現不錯！店內高朋滿座，基本客源非常穩固。")
+        elif prob > 0.20:
+            st.warning("⚠️ 【勉強度日】生意稍顯冷清... 建議調整內部配置，加強弱項指標。")
+        else:
+            st.error("🚨 【面臨倒閉】慘不忍睹！客滿率極低，請立刻重新調整經營品質！")
+            
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================================
 # 🔥 Tab 2：17點策略挑戰賽
 # =====================================================================
 with tab2:
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
     st.markdown("### 💸 17點創業極限大考驗")
-    st.info("💡 規則：開店資金有限！所有參數加起來最多只能花 17 分。（拉桿分數即點數、提供插座算 1 分、選擇不限時福利算 1 分）")
+    st.markdown("""
+        <div style="background-color: #edf2f7; padding: 15px; border-radius: 8px; border-left: 5px solid #4a5568; margin-bottom: 20px;">
+            <b>📌 商業競賽規則：</b> 創業資金極度有限！以下 7 個指標加總<b>最高不能超過 17 分</b>！<br>
+            ⚠️ 拉桿分數即點數；提供插座算 <b>1分</b>；選擇消費者最愛的「不限時」福利算 <b>1分</b>。
+        </div>
+    """, unsafe_allow_html=True)
     
-    g2_city = st.selectbox("📍 選擇挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化縣" if x=="changhua" else "台中市" if x=="taichung" else "高雄市", key="g2_city")
+    g2_city = st.selectbox("📍 選擇本次競賽挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化市核心商圈" if x=="changhua" else "台中市精華商圈" if x=="taichung" else "高雄市三多商圈", key="g2_c_v")
     
-    col3, col4 = st.columns(2)
-    with col3:
-        g2_wifi = st.slider("📶 WiFi穩定度", 1, 5, 1, key="g2_wifi")
-        g2_quiet = st.slider("🤫 安靜程度", 1, 5, 1, key="g2_quiet")
-        g2_tasty = st.slider("☕ 美味程度", 1, 5, 1, key="g2_tasty")
-    with col4:
-        g2_cheap = st.slider("💰 CP值/划算", 1, 5, 1, key="g2_cheap")
-        g2_music = st.slider("🎵 音樂舒適", 1, 5, 1, key="g2_music")
-        g2_socket = st.radio("🔌 插座服務 (提供=1分)", ["不提供", "提供"], index=0, key="g2_socket")
-        g2_limit = st.radio("⏳ 限時規定 (不限時=1分)", ["限時", "不限時"], index=0, key="g2_limit")
+    st.markdown("#### 🔹 投資點數分配")
+    col5, col6 = st.columns(2)
+    with col5:
+        g2_wifi = st.slider("📶 投資 WiFi 穩定度", 1, 5, 1, key="g2_w")
+        g2_quiet = st.slider("🤫 投資 環境安靜度", 1, 5, 1, key="g2_q")
+        g2_tasty = st.slider("☕ 投資 產品美味度", 1, 5, 1, key="g2_t")
+    with col6:
+        g2_cheap = st.slider("💰 投資 CP值與價格", 1, 5, 1, key="g2_c")
+        g2_music = st.slider("🎵 投資 音樂環境", 1, 5, 1, key="g2_m")
+    
+    st.markdown("#### 🔹 加值福利配置")
+    col7, col8 = st.columns(2)
+    with col7:
+        g2_socket = st.radio("🔌 插座服務 (提供 = 1分)", ["不提供", "提供"], index=0, horizontal=True, key="g2_s")
+    with col8:
+        g2_limit = st.radio("⏳ 限時規定 (不限時 = 1分)", ["限時", "不限時"], index=0, horizontal=True, key="g2_l")
         
-    # 動態點數計算
+    # 計算點數
     s_score = 1 if g2_socket == "提供" else 0
     l_score = 1 if g2_limit == "不限時" else 0
     total_points = g2_wifi + g2_quiet + g2_tasty + g2_cheap + g2_music + s_score + l_score
     
-    st.markdown("---")
-    # 網頁端專屬：動態高質感進度條與色彩提示
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 網頁即時互動進度條
     if total_points > 17:
-        st.error(f"🟥 💥 點數超支！目前已使用：{total_points} / 17 分（請降低分數以符合預算）")
-        st.progress(1.0)
+        st.error(f"💥 預算爆表！目前已使用：{total_points} / 17 分。資金不足，請調低上方投資！")
     else:
-        st.success(f"🟩 目前已使用點數：{total_points} / 17 分（尚餘 {17 - total_points} 分）")
-        st.progress(total_points / 17)
-        
-    if st.button("🏆 送交 AI 評定賽果", type="primary", key="g2_btn"):
+        st.success(f"✅ 預算安全。目前已使用：{total_points} / 17 分（剩餘資金：{17 - total_points} 分）")
+    
+    st.progress(min(1.0, total_points / 17))
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    if st.button("🏆 消耗預算，送交 AI 進行賽果評定", key="btn2"):
         if total_points > 17:
-            st.error("❌ 預算超支！無法提交，請調低分數再試。")
+            st.error("❌ 資金超支！無法開店，請先符合預算規則。")
         else:
             s_val = s_score
             l_val = 1 if g2_limit == "限時" else 0
             prob = get_prediction(g2_city, g2_wifi, g2_quiet, g2_tasty, g2_cheap, g2_music, s_val, l_val)
             
-            st.metric(label="🎯 最終預估『客滿機率』", value=f"{prob * 100:.2f}%")
+            st.markdown("---")
+            st.metric(label="🎯 最終經營挑戰賽得分（客滿率）", value=f"{prob * 100:.2f}%")
+            
             if prob > 0.65:
                 st.balloons()
-                st.success("👑 【神級鐵桿經理人】太扯了！你用有限的 17 分預算，調配出完美的黃金比例！堪稱教科書等級的商業決策！")
+                st.success("👑 【神級鐵桿經理人】太扯了！妳用精準的 17 分預算切中商圈痛點，完美通關！")
             elif prob > 0.45:
-                st.success("💰 【精明創業家】很不錯！預算控制得當，店裡生意興隆，穩穩賺大錢！")
+                st.success("💰 【精明創業家】很不錯！預算控制得當，店裡穩穩獲利賺大錢！")
             else:
-                st.warning("📉 【決策失誤】可惜！雖然符合 17 分限制，但你的配置沒辦法吸引該城市的客人。")
+                st.warning("📉 【決策失誤】可惜！配置雖然沒超支，但無法吸引該城市的目標客群，再換個配方試試看！")
+                
+    st.markdown("</div>", unsafe_allow_html=True)
