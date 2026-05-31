@@ -5,7 +5,7 @@ import pandas as pd
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 終極 CSS 注入：強制鎖定海軍藍 (#2A5290)，消滅全部紅色，美化按鈕
+# 2. 注入自訂 CSS：強制套用顏色，消滅紅色，並修正 Streamlit 核心元件主題
 st.markdown("""
     <style>
     /* 全域背景色微調 */
@@ -16,18 +16,19 @@ st.markdown("""
         --primary-color: #2A5290 !important;
     }
     
-    /* 徹底染藍：拉桿上方的紅字數字小標籤 */
-    div[data-testid="stSliderTickBar"] ~ div,
-    div[class*="st-emotion-cache"] span,
-    div[class*="st-emotion-cache"] div,
-    .stSlider div,
-    .stSlider p,
-    span[data-testid="stWidgetLabel"] p {
+    /* 頁籤選取狀態顏色 */
+    div[data-baseweb="tab-list"] button[aria-selected="true"] {
         color: #2A5290 !important;
+        border-bottom-color: #2A5290 !important;
     }
     
-    /* 強制將 Slider 最左側累積的紅色進度條與軌道換成海軍藍 */
-    div[data-testid="stSlider"] div[role="presentation"] div {
+    /* 修改拉桿軌道和進度條為海軍藍 */
+    /* 整體軌道背景 */
+    .stSlider [data-baseweb="slider"] > div > div {
+        background-color: rgba(42, 82, 144, 0.1) !important;
+    }
+    /* 累積進度部分 */
+    .stSlider [data-baseweb="slider"] div[role="presentation"] div:first-child {
         background-color: #2A5290 !important;
     }
     
@@ -36,29 +37,40 @@ st.markdown("""
         background-color: #F7F5F2 !important;
         border: 3px solid #2A5290 !important;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.2) !important;
+        width: 24px !important;
+        height: 24px !important;
     }
     
-    /* 徹底染藍：Radio 單選鈕外圈與被選中時的內部「核心紅點」 */
+    /* 修改 Radio 單選鈕為海軍藍 */
+    /* 被選中時的核心圓點 */
     div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="true"] > div {
         border-color: #2A5290 !important;
         background-color: #2A5290 !important;
     }
-    
-    /* 進度條、網頁分頁標籤（Tabs）的所有紅色全面攔截 */
-    div[data-baseweb="progress-bar"] > div { background-color: #2A5290 !important; }
-    div[data-baseweb="tab-list"] button[aria-selected="true"] {
-        color: #2A5290 !important;
-        border-bottom-color: #2A5290 !important;
+    /* 選中時的外圈 */
+    div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="true"] {
+        border-color: #2A5290 !important;
     }
-
-    /* 封面排版與 100% 絕對置中容器 */
-    .cover-box {
+    /* 未選中時的外圈 */
+    div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="false"] {
+        border-color: rgba(42, 82, 144, 0.5) !important;
+    }
+    
+    /* 進度條顏色變更 */
+    div[data-baseweb="progress-bar"] > div { background-color: #2A5290 !important; }
+    
+    /* 封面排版容器 */
+    .cover-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
     }
-    .cover-img {
+    .cover-image {
         width: 100%;
         max-width: 700px;
         border-radius: 16px;
@@ -72,20 +84,20 @@ st.markdown("""
         color: #F7F5F2 !important;
         border-radius: 30px !important;
         font-weight: bold !important;
-        font-size: 1.3rem !important;
+        font-size: 1.2rem !important;
         padding: 12px 60px !important;
         border: none !important;
-        box-shadow: 0 6px 15px rgba(42, 82, 144, 0.3) !important;
+        box-shadow: 0 8px 20px rgba(42, 82, 144, 0.25) !important;
         transition: all 0.3s ease !important;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 10px 20px rgba(42, 82, 144, 0.45) !important;
+        box-shadow: 0 12px 25px rgba(42, 82, 144, 0.4) !important;
         color: #ffffff !important;
     }
     
-    /* 高質感遊戲卡片框 */
+    /* 高質感卡片框 */
     .game-card {
         background-color: #ffffff;
         padding: 30px;
@@ -107,9 +119,10 @@ if 'game_started' not in st.session_state:
 if not st.session_state.game_started:
     # 顯示封面頁面
     st.markdown("<br>", unsafe_allow_html=True)
+    
     st.markdown("""
-        <div class="cover-box">
-            <img class="cover-img" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200">
+        <div class="cover-container">
+            <img class="cover-image" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200">
             <h1 style="color: #2A5290; font-size: 3rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">AI Cafe Tycoon</h1>
             <p style="color: #6b5b4b; font-size: 1.2rem; font-weight: 500; margin-bottom: 30px;">
                 歡迎來到商業數據戰場！妳能成功利用大數據，調配出完美的客滿配方嗎？
@@ -117,7 +130,7 @@ if not st.session_state.game_started:
         </div>
     """, unsafe_allow_html=True)
     
-    # 藉由標準的 Streamlit columns 搭配內部空隙與外置容器達到完全置中
+    # 藉由標準的 Streamlit columns 將按鈕置中
     _, btn_col, _ = st.columns([1, 1, 1])
     with btn_col:
         if st.button("點擊開始遊戲", key="start_game_trigger", use_container_width=True):
