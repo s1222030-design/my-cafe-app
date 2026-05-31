@@ -2,32 +2,32 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# 1. 網頁基本設定 (設定寬版與標題)
+# 1. 網頁基本設定
 st.set_page_config(page_title="AI 咖啡廳改造大亨", page_icon="☕", layout="wide")
 
-# 2. 注入精準 CSS (實現按鈕置中、拉桿配色，並將所有 #FF4B4B 預設紅強行替換為 #2A5290)
+# 2. 注入自訂 CSS：全面改為 #2A5290 與 #F7F5F2，消滅所有預設紅 (#FF4B4B)
 st.markdown("""
     <style>
-    /* 全域背景微調，襯托奶油白 */
+    /* 全域背景色微調 */
     .main { background-color: #fcfbfa; }
     
-    /* 1. 將所有 Streamlit 預設的主題紅色 (#FF4B4B) 強制全面改成 #2A5290 */
+    /* 強制將 Streamlit 核心變數改為海軍藍，徹底消滅 #FF4B4B 紅色 */
     :root {
         --primary-color: #2A5290 !important;
     }
     
-    /* 強制修改文字連結、標籤頁(Tabs)選中時的底線與文字顏色 */
+    /* 頁籤 (Tabs) 選取時的文字與底線顏色 */
     div[data-baseweb="tab-list"] button[aria-selected="true"] {
         color: #2A5290 !important;
         border-bottom-color: #2A5290 !important;
     }
     
-    /* 2. 精準修改拉桿軌道顏色 (#2A5290) */
+    /* 修改拉桿軌道顏色 (#2A5290) */
     .stSlider > div > div > div > div {
         background-color: #2A5290 !important;
     }
     
-    /* 3. 精準修改拉桿滑動圓鈕顏色 (#F7F5F2) 與藍色邊框 */
+    /* 修改拉桿滑動圓鈕顏色 (#F7F5F2) */
     .stSlider [data-baseweb="slider"] [role="slider"] {
         background-color: #F7F5F2 !important;
         border: 3px solid #2A5290 !important;
@@ -36,36 +36,53 @@ st.markdown("""
         height: 24px !important;
     }
     
-    /* 4. 讓封面的「開始遊戲」按鈕完美置中的專屬容器外框 */
-    .center-btn-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 10px 0;
+    /* 進度條顏色強制改為海軍藍 */
+    div[data-baseweb="progress-bar"] > div {
+        background-color: #2A5290 !important;
     }
     
-    /* 5. 遊戲風格按鈕美化 */
+    /* 封面專用：讓圖片與按鈕完全置中的容器 */
+    .cover-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .cover-image {
+        width: 100%;
+        max-width: 700px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        margin-bottom: 25px;
+    }
+    
+    /* 所有的按鈕外觀奢華升級 */
     .stButton > button {
         background: linear-gradient(135deg, #2A5290 0%, #1e3a6d 100%) !important;
         color: #F7F5F2 !important;
         border-radius: 30px !important;
         font-weight: bold !important;
-        font-size: 1.25rem !important;
-        padding: 12px 50px !important;
+        font-size: 1.3rem !important;
+        padding: 12px 60px !important;
         border: none !important;
-        box-shadow: 0 8px 15px rgba(42, 82, 144, 0.2) !important;
+        box-shadow: 0 8px 20px rgba(42, 82, 144, 0.25) !important;
         transition: all 0.3s ease !important;
-        margin: 0 auto !important;
         display: block !important;
+        margin: 0 auto !important; /* 確保按鈕水平置中 */
     }
+    
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 12px 20px rgba(42, 82, 144, 0.35) !important;
+        box-shadow: 0 12px 25px rgba(42, 82, 144, 0.4) !important;
         color: #ffffff !important;
     }
     
-    /* 高質感卡片外框 */
+    /* 高質感遊戲卡片區塊 */
     .game-card {
         background-color: #ffffff;
         padding: 30px;
@@ -82,34 +99,28 @@ if 'game_started' not in st.session_state:
     st.session_state.game_started = False
 
 # =====================================================================
-# 🎬 關卡封面頁面 (Cover Page)
+# 🎬 關卡封面頁面 (Cover Page) - 採用完全安全的 HTML 置中排版
 # =====================================================================
 if not st.session_state.game_started:
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    with col2:
-        # 使用極具氛圍感的咖啡廳特寫插圖作為封面
-        st.image("https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200", use_column_width=True)
+    # 透過網頁容器，直接強迫所有封面素材與按鈕全部絕對置中
+    st.markdown("""
+        <div class="cover-container">
+            <img class="cover-image" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200">
+            <h1 style="color: #2A5290; font-size: 3rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">☕ AI 咖啡廳改造大亨</h1>
+            <p style="color: #6b5b4b; font-size: 1.2rem; font-weight: 500; margin-bottom: 30px;">
+                歡迎來到商業數據戰場！妳能成功利用大數據，調配出完美的客滿配方嗎？
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 開始遊戲按鈕 (CSS 已將 .stButton 設定為 margin: 0 auto 自動置中)
+    if st.button("🎮 點擊開始遊戲 🚀", key="start_game_trigger"):
+        st.session_state.game_started = True
+        st.rerun()
         
-        st.markdown("""
-            <div style="text-align: center; margin-top: 20px;">
-                <h1 style="color: #2A5290; font-size: 3rem; font-weight: 800; letter-spacing: 2px;">☕ AI 咖啡廳改造大亨</h1>
-                <p style="color: #6b5b4b; font-size: 1.2rem; margin-top: 10px; font-weight: 500;">
-                    歡迎來到商業數據戰場！妳能成功利用大數據，調配出完美的客滿配方嗎？
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # 透過 HTML 容器包裹按鈕，並利用 CSS 達成完全置中
-        st.markdown('<div class="center-btn-container">', unsafe_allow_html=True)
-        if st.button("🎮 點擊開始遊戲 🚀", key="start_game_trigger"):
-            st.session_state.game_started = True
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-            
-    st.stop() # 阻斷後續畫面，直到玩家按下按鈕
+    st.stop() # 阻斷後續畫面，直到玩家點擊按鈕進入
 
 # =====================================================================
 # 🕹️ 核心遊戲主程式 (當點擊開始後才會載入)
@@ -123,7 +134,7 @@ try:
     model = saved_data["model"]
     feature_cols = saved_data["feature_cols"]
 except Exception as e:
-    st.error("❌ 讀取模型失敗，請確認 cafe_model.pkl 是否存在。")
+    st.error("❌ 讀取模型失敗，請確認 cafe_model.pkl 是否與 app.py 放一起。")
     st.stop()
 
 # 遊戲主頁大標題
@@ -134,7 +145,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 建立兩個遊戲的頁籤
+# 建立兩個遊戲的頁籤 (底色與字體已被 CSS 修正為海軍藍)
 tab1, tab2 = st.tabs(["🎮 關卡一：自由經營模擬市集", "🔥 關卡二：17點策略極限挑戰賽"])
 
 # 預測推理的核心函式
@@ -255,9 +266,9 @@ with tab2:
     
     # 動態預算條提示
     if total_points > 17:
-        st.error(f"🟥 💥 預算爆表！目前已使用：{total_points} / 17 分（請調低分數以符合競賽規範）")
+        st.error(f"⚠️ 💥 預算爆表！目前已使用：{total_points} / 17 分（請調低分數以符合競賽規範）")
     else:
-        st.success(f"🟩 預算安全！目前已使用：{total_points} / 17 分（尚餘 {17 - total_points} 分）")
+        st.success(f"✅ 預算安全！目前已使用：{total_points} / 17 分（尚餘 {17 - total_points} 分）")
     st.progress(min(1.0, total_points / 17))
     st.markdown("<br>", unsafe_allow_html=True)
     
