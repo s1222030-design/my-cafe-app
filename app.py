@@ -16,10 +16,7 @@ st.markdown("""
         --primary-color: #2A5290 !important;
     }
     
-    /* ========================================================
-       🚨 徹底消滅 #FF4B4B 紅色魔王區 (Slider & Radio 核心強制修正)
-       ======================================================== */
-    /* 徹底染藍：拉桿上方的紅字數字小標籤 (例如：3) */
+    /* 徹底染藍：拉桿上方的紅字數字小標籤 */
     div[data-testid="stSliderTickBar"] ~ div,
     div[class*="st-emotion-cache"] span,
     div[class*="st-emotion-cache"] div,
@@ -54,9 +51,7 @@ st.markdown("""
         border-bottom-color: #2A5290 !important;
     }
 
-    /* ========================================================
-       🎯 封面排版與 100% 絕對置中容器
-       ======================================================== */
+    /* 封面排版與 100% 絕對置中容器 */
     .cover-box {
         text-align: center;
         max-width: 800px;
@@ -71,7 +66,7 @@ st.markdown("""
         margin-bottom: 25px;
     }
     
-    /* 暴力破壞 Streamlit 的原生按鈕靠左限制，強制作業系統級置中 */
+    /* 強制按鈕居中 */
     div.stButton {
         display: flex;
         justify-content: center;
@@ -133,7 +128,6 @@ if not st.session_state.game_started:
         </div>
     """, unsafe_allow_html=True)
     
-    # 這裡的按鈕會直接被 CSS 強制捉到網頁正中央
     if st.button("點擊開始遊戲", key="start_game_trigger"):
         st.session_state.game_started = True
         st.rerun()
@@ -162,15 +156,4 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["關卡一：自由經營模擬市集", "關卡二：17點策略極限挑戰賽"])
-
-def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val):
-    city_geo_centers = {
-        "changhua": {"lat": 24.078, "lng": 120.551},
-        "taichung": {"lat": 24.151, "lng": 120.664},
-        "kaohsiung": {"lat": 22.614, "lng": 120.306},
-    }
-    lat = city_geo_centers[city]["lat"]
-    lng = city_geo_centers[city]["lng"]
-    
-    input_dict =
+tab1, tab2 = st.tabs
