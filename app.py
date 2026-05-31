@@ -2,205 +2,122 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# 1. 網頁頂部設定（設定為寬版、高質感標題）
-st.set_page_config(
-    page_title="AI 咖啡廳改造大亨",
-    page_icon="☕",
-    layout="wide"
-)
+# 1. 網頁基本設定
+st.set_page_config(page_title="AI 咖啡廳改造大亨", page_icon="☕", layout="wide")
 
-# 自訂網頁 CSS 樣式（美化拉桿與卡片底色）
-st.markdown("""
+# 2. 注入自訂 CSS (調整拉桿顏色)
+st.markdown(f"""
     <style>
-    .main { background-color: #f8fafc; }
-    .stSlider > div > div > div > div { background-color: #319795; }
-    div.stButton > button:first-child {
-        background-color: #319795; color: white; font-weight: bold;
-        border-radius: 8px; width: 100%; height: 45px; border: none;
-        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
-        transition: all 0.15s ease;
-    }
-    div.stButton > button:first-child:hover {
-        background-color: #2c7a7b; transform: translateY(-1px);
-    }
-    .custom-card {
-        background-color: #ffffff; padding: 25px; 
-        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0; margin-bottom: 20px;
-    }
+    /* 設定拉桿軌道顏色 */
+    .stSlider > div > div > div > div {{
+        background-color: #2A5290 !important;
+    }}
+    /* 設定拉桿滑塊(按鈕)顏色 */
+    .stSlider [data-baseweb="slider"] [role="slider"] {{
+        background-color: #F7F5F2 !important;
+        border: 2px solid #2A5290 !important;
+        width: 24px; height: 24px;
+    }}
+    /* 遊戲風格按鈕 */
+    .stButton > button {{
+        background-color: #2A5290; color: #F7F5F2; 
+        border-radius: 50px; font-weight: bold; font-size: 1.2rem;
+        padding: 10px 40px; border: none; transition: 0.3s;
+    }}
+    .stButton > button:hover {{
+        background-color: #1e3a6d; color: white; transform: scale(1.05);
+    }}
     </style>
 """, unsafe_allow_html=True)
 
-# 2. 載入模型
+# 3. 初始化遊戲狀態
+if 'game_started' not in st.session_state:
+    st.session_state.game_started = False
+
+# --- 封面頁面 (Cover Page) ---
+if not st.session_state.game_started:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=1000", use_column_width=True)
+        st.markdown("<h1 style='text-align: center; color: #2A5290;'>☕ AI 咖啡廳改造大亨</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; font-size: 1.2rem;'>歡迎來到商業大亨挑戰賽！妳能用數據征服彰化、台中與高雄的客人嗎？</p>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        # 點擊開始按鈕
+        if st.button("🚀 點擊開始遊戲", use_container_width=True):
+            st.session_state.game_started = True
+            st.rerun()
+    st.stop() # 停止執行後續程式碼，直到開始遊戲
+
+# --- 主遊戲頁面 (Main Game) ---
+# 載入模型 (請確保檔案在同資料夾)
 @st.cache_resource
 def load_model():
     return joblib.load("cafe_model.pkl")
 
-try:
-    saved_data = load_model()
-    model = saved_data["model"]
-    feature_cols = saved_data["feature_cols"]
-except Exception as e:
-    st.error("❌ 找不到模型檔案 cafe_model.pkl，請確保它跟 app.py 放在同一個 GitHub 庫喔！")
-    st.stop()
+saved_data = load_model()
+model = saved_data["model"]
+feature_cols = saved_data["feature_cols"]
 
-# 3. 頂級奢華網頁大標題
-st.markdown("""
-    <div style="text-align: center; padding: 20px 0px;">
-        <h1 style="color: #1a202c; font-size: 3rem; font-weight: 800; margin-bottom: 5px;">☕ AI 咖啡廳改造大亨</h1>
-        <p style="color: #718096; font-size: 1.2rem;">利用隨機森林大數據，精準預測妳的店面客滿率！</p>
-        <hr style="border: 0; height: 2px; background: linear-gradient(to right, rgba(0,0,0,0), #319795, rgba(0,0,0,0)); margin-top: 20px;">
-    </div>
-""", unsafe_allow_html=True)
-
-# 預測運算核心
-def get_prediction(city, wifi, quiet, tasty, cheap, music, socket_val, limit_val):
-    city_geo_centers = {
-        "changhua": {"lat": 24.078, "lng": 120.551},
-        "taichung": {"lat": 24.151, "lng": 120.664},
-        "kaohsiung": {"lat": 22.614, "lng": 120.306},
-    }
-    lat = city_geo_centers[city]["lat"]
-    lng = city_geo_centers[city]["lng"]
-    
-    input_dict = {
-        "wifi": wifi, "quiet": quiet, "tasty": tasty, "cheap": cheap, "music": music,
-        "latitude": lat, "longitude": lng
-    }
+# 預測邏輯
+def get_prediction(city, wifi, quiet, tasty, cheap, music, s_val, l_val):
+    city_geo = {"changhua": (24.08, 120.54), "taichung": (24.15, 120.66), "kaohsiung": (22.61, 120.30)}
+    lat, lng = city_geo[city]
+    input_dict = {"wifi": wifi, "quiet": quiet, "tasty": tasty, "cheap": cheap, "music": music, "latitude": lat, "longitude": lng}
     for col in feature_cols:
         if col not in input_dict:
             if col == f"city_{city}": input_dict[col] = 1
-            elif col == "limited_time_no": input_dict[col] = 1 - limit_val
-            elif col == "limited_time_yes": input_dict[col] = limit_val
-            elif col == "socket_yes": input_dict[col] = socket_val
+            elif col == "limited_time_no": input_dict[col] = 1 - l_val
+            elif col == "limited_time_yes": input_dict[col] = l_val
+            elif col == "socket_yes": input_dict[col] = s_val
             else: input_dict[col] = 0
-            
-    input_df = pd.DataFrame([input_dict])
-    missing_cols = set(feature_cols) - set(input_df.columns)
-    for c in missing_cols: input_df[c] = 0
-    input_df = input_df[feature_cols]
-    
-    prob = model.predict(input_df)[0]
-    return max(0.0, min(1.0, prob))
+    input_df = pd.DataFrame([input_dict])[feature_cols]
+    return model.predict(input_df)[0]
 
-# 4. 建立美美的 Tabs 標籤頁
-tab1, tab2 = st.tabs(["🎮 自由經營模擬市集", "🔥 17點策略極限挑戰賽"])
+# UI 介面
+st.title("🏆 AI 咖啡廳策略戰場")
+tab1, tab2 = st.tabs(["🎮 自由模擬經營", "🔥 17點極限挑戰賽"])
 
-# =====================================================================
-# 🎮 Tab 1：自由經營模擬
-# =====================================================================
 with tab1:
-    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
-    st.markdown("### 🛠️ 自由調配經營藍圖")
-    st.caption("在這裡妳可以無限制地調整參數，試探各個商圈客人的喜好大數據。")
+    st.markdown("### 自由調整，觀察數據變動")
+    g1_city = st.selectbox("目標城市", ["changhua", "taichung", "kaohsiung"], key="g1_c")
+    c1, c2 = st.columns(2)
+    with c1:
+        w = st.slider("📶 WiFi穩定度", 1, 5, 3, key="g1_w")
+        q = st.slider("🤫 安靜程度", 1, 5, 3, key="g1_q")
+        t = st.slider("☕ 美味程度", 1, 5, 3, key="g1_t")
+    with c2:
+        c = st.slider("💰 CP值划算", 1, 5, 3, key="g1_cheap")
+        m = st.slider("🎵 音樂舒適", 1, 5, 3, key="g1_m")
+        soc = st.toggle("🔌 提供插座", value=True)
+        lim = st.toggle("⏳ 限制用餐時間", value=False)
     
-    g1_city = st.selectbox("📍 欲創立店面的目標城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化市核心商圈" if x=="changhua" else "台中市精華商圈" if x=="taichung" else "高雄市三多商圈")
-    
-    st.markdown("#### 🔹 店內品質設定（1分最差、5分完美）")
-    col1, col2 = st.columns(2)
-    with col1:
-        g1_wifi = st.slider("📶 高速 WiFi 穩定度", 1, 5, 3, key="g1_w")
-        g1_quiet = st.slider("🤫 環境安靜、適宜工作度", 1, 5, 3, key="g1_q")
-        g1_tasty = st.slider("☕ 咖啡與甜點美味程度", 1, 5, 3, key="g1_t")
-    with col2:
-        g1_cheap = st.slider("💰 價格親民度 / CP值", 1, 5, 3, key="g1_c")
-        g1_music = st.slider("🎵 店內背景音樂舒適度", 1, 5, 3, key="g1_m")
-    
-    st.markdown("#### 🔹 消費者權益福利")
-    col3, col4 = st.columns(2)
-    with col3:
-        g1_socket = st.radio("🔌 每個座位是否提供免費插座", ["不提供", "提供"], index=1, horizontal=True)
-    with col4:
-        g1_limit = st.radio("⏳ 客滿時的用餐時間限制規定", ["不限時", "限時"], index=0, horizontal=True)
-        
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("🚀 啟動 AI 大數據經營模擬", key="btn1"):
-        s_val = 1 if g1_socket == "提供" else 0
-        l_val = 1 if g1_limit == "限時" else 0
-        prob = get_prediction(g1_city, g1_wifi, g1_quiet, g1_tasty, g1_cheap, g1_music, s_val, l_val)
-        
-        # 精美結果圖卡
-        st.markdown("---")
-        st.metric(label="📊 預估平均「客滿機率」", value=f"{prob * 100:.2f}%")
-        
-        if prob > 0.75:
-            st.balloons()
-            st.success("🏆 【傳奇神店】太強了！服務與品質皆為頂級，店門口排隊排到馬路上！")
-        elif prob > 0.45:
-            st.success("👍 【穩定獲利】表現不錯！店內高朋滿座，基本客源非常穩固。")
-        elif prob > 0.20:
-            st.warning("⚠️ 【勉強度日】生意稍顯冷清... 建議調整內部配置，加強弱項指標。")
-        else:
-            st.error("🚨 【面臨倒閉】慘不忍睹！客滿率極低，請立刻重新調整經營品質！")
-            
-    st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("🚀 開始分析", key="btn1"):
+        res = get_prediction(g1_city, w, q, t, c, m, 1 if soc else 0, 1 if lim else 0)
+        st.metric("預估客滿率", f"{res*100:.2f}%")
 
-# =====================================================================
-# 🔥 Tab 2：17點策略挑戰賽
-# =====================================================================
 with tab2:
-    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
-    st.markdown("### 💸 17點創業極限大考驗")
-    st.markdown("""
-        <div style="background-color: #edf2f7; padding: 15px; border-radius: 8px; border-left: 5px solid #4a5568; margin-bottom: 20px;">
-            <b>📌 商業競賽規則：</b> 創業資金極度有限！以下 7 個指標加總<b>最高不能超過 17 分</b>！<br>
-            ⚠️ 拉桿分數即點數；提供插座算 <b>1分</b>；選擇消費者最愛的「不限時」福利算 <b>1分</b>。
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 💸 17點預算大挑戰")
+    st.info("💡 規則：WiFi+安靜+美味+CP值+音樂 + 插座(1分) + 不限時(1分) <= 17分")
+    g2_city = st.selectbox("挑戰城市", ["changhua", "taichung", "kaohsiung"], key="g2_c")
+    colA, colB = st.columns(2)
+    with colA:
+        g2_w = st.slider("📶 WiFi點數", 1, 5, 1, key="g2_w")
+        g2_q = st.slider("🤫 安靜點數", 1, 5, 1, key="g2_q")
+        g2_t = st.slider("☕ 美味點數", 1, 5, 1, key="g2_t")
+    with colB:
+        g2_c = st.slider("💰 CP值點數", 1, 5, 1, key="g2_c")
+        g2_m = st.slider("🎵 音樂點數", 1, 5, 1, key="g2_m")
+        g2_s = st.checkbox("🔌 提供插座 (+1分)")
+        g2_l = st.checkbox("☕ 不限時福利 (+1分)")
     
-    g2_city = st.selectbox("📍 選擇本次競賽挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化市核心商圈" if x=="changhua" else "台中市精華商圈" if x=="taichung" else "高雄市三多商圈", key="g2_c_v")
-    
-    st.markdown("#### 🔹 投資點數分配")
-    col5, col6 = st.columns(2)
-    with col5:
-        g2_wifi = st.slider("📶 投資 WiFi 穩定度", 1, 5, 1, key="g2_w")
-        g2_quiet = st.slider("🤫 投資 環境安靜度", 1, 5, 1, key="g2_q")
-        g2_tasty = st.slider("☕ 投資 產品美味度", 1, 5, 1, key="g2_t")
-    with col6:
-        g2_cheap = st.slider("💰 投資 CP值與價格", 1, 5, 1, key="g2_c")
-        g2_music = st.slider("🎵 投資 音樂環境", 1, 5, 1, key="g2_m")
-    
-    st.markdown("#### 🔹 加值福利配置")
-    col7, col8 = st.columns(2)
-    with col7:
-        g2_socket = st.radio("🔌 插座服務 (提供 = 1分)", ["不提供", "提供"], index=0, horizontal=True, key="g2_s")
-    with col8:
-        g2_limit = st.radio("⏳ 限時規定 (不限時 = 1分)", ["限時", "不限時"], index=0, horizontal=True, key="g2_l")
-        
-    # 計算點數
-    s_score = 1 if g2_socket == "提供" else 0
-    l_score = 1 if g2_limit == "不限時" else 0
-    total_points = g2_wifi + g2_quiet + g2_tasty + g2_cheap + g2_music + s_score + l_score
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # 網頁即時互動進度條
-    if total_points > 17:
-        st.error(f"💥 預算爆表！目前已使用：{total_points} / 17 分。資金不足，請調低上方投資！")
+    used = g2_w + g2_q + g2_t + g2_c + g2_m + (1 if g2_s else 0) + (1 if g2_l else 0)
+    if used > 17:
+        st.error(f"⚠️ 點數超支！已使用: {used} / 17")
     else:
-        st.success(f"✅ 預算安全。目前已使用：{total_points} / 17 分（剩餘資金：{17 - total_points} 分）")
-    
-    st.progress(min(1.0, total_points / 17))
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("🏆 消耗預算，送交 AI 進行賽果評定", key="btn2"):
-        if total_points > 17:
-            st.error("❌ 資金超支！無法開店，請先符合預算規則。")
-        else:
-            s_val = s_score
-            l_val = 1 if g2_limit == "限時" else 0
-            prob = get_prediction(g2_city, g2_wifi, g2_quiet, g2_tasty, g2_cheap, g2_music, s_val, l_val)
-            
-            st.markdown("---")
-            st.metric(label="🎯 最終經營挑戰賽得分（客滿率）", value=f"{prob * 100:.2f}%")
-            
-            if prob > 0.65:
-                st.balloons()
-                st.success("👑 【神級鐵桿經理人】太扯了！妳用精準的 17 分預算切中商圈痛點，完美通關！")
-            elif prob > 0.45:
-                st.success("💰 【精明創業家】很不錯！預算控制得當，店裡穩穩獲利賺大錢！")
-            else:
-                st.warning("📉 【決策失誤】可惜！配置雖然沒超支，但無法吸引該城市的目標客群，再換個配方試試看！")
-                
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.success(f"✅ 預算內: {used} / 17")
+        if st.button("🏆 提交賽果", key="btn2"):
+            res = get_prediction(g2_city, g2_w, g2_q, g2_t, g2_c, g2_m, 1 if g2_s else 0, 0 if g2_l else 1)
+            st.metric("最終客滿率得分", f"{res*100:.2f}%")
+
+這份專題簡報與美化版程式碼已經準備就緒！Feel free to take a look and let me know if you'd like to make any edits. 妳的專題現在具備了非常完整且精緻的門面！
