@@ -5,60 +5,18 @@ import pandas as pd
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 注入自訂 CSS：強制套用顏色，消滅紅色，並修正 Streamlit 核心元件主題
+# 2. 終極 CSS 注入：搭配 config.toml 完美鎖定海軍藍與奶油白字體
 st.markdown("""
     <style>
     /* 全域背景色微調 */
     .main { background-color: #fcfbfa; }
-    
-    /* 核心變數強力壓制 */
-    :root {
-        --primary-color: #2A5290 !important;
-    }
     
     /* 頁籤選取狀態顏色 */
     div[data-baseweb="tab-list"] button[aria-selected="true"] {
         color: #2A5290 !important;
         border-bottom-color: #2A5290 !important;
     }
-    
-    /* 修改拉桿軌道和進度條為海軍藍 */
-    /* 整體軌道背景 */
-    .stSlider [data-baseweb="slider"] > div > div {
-        background-color: rgba(42, 82, 144, 0.1) !important;
-    }
-    /* 累積進度部分 */
-    .stSlider [data-baseweb="slider"] div[role="presentation"] div:first-child {
-        background-color: #2A5290 !important;
-    }
-    
-    /* 修改拉桿滑動圓鈕 */
-    .stSlider [data-baseweb="slider"] [role="slider"] {
-        background-color: #F7F5F2 !important;
-        border: 3px solid #2A5290 !important;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.2) !important;
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    /* 修改 Radio 單選鈕為海軍藍 */
-    /* 被選中時的核心圓點 */
-    div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="true"] > div {
-        border-color: #2A5290 !important;
-        background-color: #2A5290 !important;
-    }
-    /* 選中時的外圈 */
-    div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="true"] {
-        border-color: #2A5290 !important;
-    }
-    /* 未選中時的外圈 */
-    div[data-testid="stRadio"] div[role="radiogroup"] div[data-checked="false"] {
-        border-color: rgba(42, 82, 144, 0.5) !important;
-    }
-    
-    /* 進度條顏色變更 */
-    div[data-baseweb="progress-bar"] > div { background-color: #2A5290 !important; }
-    
+
     /* 封面排版容器 */
     .cover-container {
         display: flex;
@@ -94,6 +52,14 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-2px) !important;
         box-shadow: 0 12px 25px rgba(42, 82, 144, 0.4) !important;
+        color: #ffffff !important;
+    }
+    
+    /* 確保按鈕內部的 Streamlit 文字元件也強制繼承 #F7F5F2 */
+    .stButton > button p {
+        color: #F7F5F2 !important;
+    }
+    .stButton > button:hover p {
         color: #ffffff !important;
     }
     
