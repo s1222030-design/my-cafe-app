@@ -221,4 +221,56 @@ else:
                 </div>
             """, unsafe_allow_html=True)
             
-            g2_city = st.selectbox("選擇本次競賽挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda
+            g2_city = st.selectbox("選擇本次競賽挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化核心商圈" if x=="changhua" else "台中精華商圈" if x=="taichung" else "高雄三多商圈", key="g2_city_select")
+            
+            col5, col6 = st.columns(2)
+            with col5:
+                g2_wifi = st.slider("投資 WiFi 穩定度", 1, 5, 1, key="g2_slider_w")
+                g2_quiet = st.slider("投資 環境安靜度", 1, 5, 1, key="g2_slider_q")
+                g2_tasty = st.slider("投資 產品美味度", 1, 5, 1, key="g2_slider_t")
+            with col6:
+                g2_cheap = st.slider("投資 CP值與價格", 1, 5, 1, key="g2_slider_c")
+                g2_music = st.slider("投資 音樂環境", 1, 5, 1, key="g2_slider_m")
+            
+            st.markdown("#### 加值策略配置")
+            col7, col8 = st.columns(2)
+            with col7:
+                g2_socket = st.radio("插座服務 (提供 = 1分)", ["不提供", "提供"], index=0, horizontal=True, key="g2_radio_s")
+            with col8:
+                g2_limit = st.radio("限時規定 (不限時 = 1分)", ["限時", "不限時"], index=0, horizontal=True, key="g2_radio_l")
+                
+            s_score = 1 if g2_socket == "提供" else 0
+            l_score = 1 if g2_limit == "不限時" else 0
+            total_points = g2_wifi + g2_quiet + g2_tasty + g2_cheap + g2_music + s_score + l_score
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            if total_points > 17:
+                st.error(f"預算爆表！目前已使用：{total_points} / 17 分（請調低分數以符合競賽規範）")
+            else:
+                st.success(f"預算安全！目前已使用：{total_points} / 17 分（尚餘 {17 - total_points} 分）")
+            st.progress(min(1.0, total_points / 17))
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            _, g2_btn_col, _ = st.columns([1, 1, 1])
+            with g2_btn_col:
+                g2_click = st.button("送交 AI 進行賽果評定", key="g2_submit_btn", use_container_width=True)
+                
+            if g2_click:
+                if total_points > 17:
+                    st.error("資金超支！無法開店，請調整配置。")
+                else:
+                    s_val = s_score
+                    l_val = 1 if g2_limit == "限時" else 0
+                    prob = get_prediction(g2_city, g2_wifi, g2_quiet, g2_tasty, g2_cheap, g2_music, s_val, l_val)
+                    
+                    st.markdown("---")
+                    st.metric(label="最終經營挑戰賽得分", value=f"{prob * 100:.2f}%")
+                    
+                    if prob > 0.65:
+                        st.balloons()
+                        st.success("神級鐵桿經理人！妳用有限的 17 分預算，精準切中商圈痛點，完美通關！")
+                    elif prob > 0.45:
+                        st.success("精明創業家！很不錯！預算控制得當，店裡生意興隆，穩穩賺大錢！")
+                    else:
+                        st.warning("決策失誤！可惜！配置雖然沒超支，但無法吸引該城市的目標客群，再換個配方試試看！")
