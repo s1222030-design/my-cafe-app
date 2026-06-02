@@ -142,12 +142,14 @@ else:
         title_text = "基礎經營模擬市集" if st.session_state.game_mode == "basic" else "17點策略極限挑戰賽"
         st.markdown(f"<h2 style='color: #2A5290; margin-top:-10px;'>{title_text}</h2>", unsafe_allow_html=True)
 
-    # --- 關卡一：自由經營模擬 ---
+    # --- 關卡一：自由經營模擬 (已完美對齊排列) ---
     if st.session_state.game_mode == "basic":
         with st.container(border=True):
             st.markdown("### 🛠️ 自由調配基地")
             g1_city = st.selectbox("選擇進駐商圈", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化核心商圈" if x=="changhua" else "台中精華商圈" if x=="taichung" else "高雄三多商圈")
             
+            st.markdown("#### 店內硬體與品質設定")
+            # 5 個拉桿乾淨排列
             c1, c2 = st.columns(2)
             with c1:
                 wifi = st.slider("WiFi 穩定度", 1, 5, 3)
@@ -156,10 +158,16 @@ else:
             with c2:
                 cheap = st.slider("物美價廉 CP值", 1, 5, 3)
                 music = st.slider("空間音樂舒適度", 1, 5, 3)
+            
+            st.markdown("#### 顧客福利開放 (完美同行並列)")
+            # 單選按鈕獨立移至下方，並且左右並排同行
+            c_welfare1, c_welfare2 = st.columns(2)
+            with c_welfare1:
                 socket = st.radio("每個座位提供免費插座", ["不提供", "提供"], index=1, horizontal=True)
+            with c_welfare2:
+                limit = st.radio("客滿時的用餐時間限制", ["不限時", "限時"], index=0, horizontal=True)
             
-            limit = st.radio("客滿時的用餐時間限制", ["不限時", "限時"], index=0, horizontal=True)
-            
+            st.markdown("<br>", unsafe_allow_html=True)
             if st.button("啟動 AI 大數據經營模擬預測", use_container_width=True):
                 s_val = 1 if socket == "提供" else 0
                 l_val = 1 if limit == "限時" else 0
@@ -167,7 +175,6 @@ else:
                 st.markdown("---")
                 st.metric("AI 預估客滿機率", f"{prob*100:.2f}%")
                 
-                # 💥 豐富的情緒價值評語區（基礎版）
                 if prob > 0.75:
                     st.balloons()
                     st.success("🎉 **餐飲界降臨的救世主神店！！！**")
@@ -182,7 +189,7 @@ else:
                     st.error(" 😭 **慘不忍睹！正面臨倒閉危機！**")
                     st.markdown("> **AI 評價**：逼逼逼！危險了！這是一個連冷氣吹出來都是絕望味道的配置。客滿率低到隨機森林模型都在流淚。店裡安靜得掉下一根針都聽得到，門口還在貼頂讓紅單。不要氣餒！身為創業者這只是必經之路，快回頭重新配製完美的客滿配方！💪")
 
-    # --- 關卡二：17點策略挑戰 ---
+    # --- 關卡二：17點策略挑戰 (同步完成完美對齊) ---
     elif st.session_state.game_mode == "advanced":
         with st.container(border=True):
             st.markdown("### 🏆 17點極限商業戰")
@@ -194,6 +201,7 @@ else:
             
             g2_city = st.selectbox("選擇本次競賽挑戰城市", ["changhua", "taichung", "kaohsiung"], format_func=lambda x: "彰化核心商圈" if x=="changhua" else "台中精華商圈" if x=="taichung" else "高雄三多商圈", key="g2_city_select")
             
+            st.markdown("#### 投資項目設定")
             c3, c4 = st.columns(2)
             with c3:
                 wifi = st.slider("投資 WiFi 穩定度", 1, 5, 1)
@@ -202,10 +210,14 @@ else:
             with c4:
                 cheap = st.slider("投資 CP值與價格", 1, 5, 1)
                 music = st.slider("投資 音樂環境", 1, 5, 1)
+            
+            st.markdown("#### 加值策略配置 (完美同行並列)")
+            c_welfare3, c_welfare4 = st.columns(2)
+            with c_welfare3:
                 socket = st.radio("插座服務 (提供 = 1分)", ["不提供", "提供"], horizontal=True)
-            
-            limit = st.radio("限時規定 (不限時 = 1分)", ["限時", "不限時"], horizontal=True)
-            
+            with c_welfare4:
+                limit = st.radio("限時規定 (不限時 = 1分)", ["限時", "不限時"], horizontal=True)
+                
             s_score = 1 if socket == "提供" else 0
             l_score = 1 if limit == "不限時" else 0
             total = wifi + quiet + tasty + cheap + music + s_score + l_score
@@ -224,7 +236,6 @@ else:
                     st.markdown("---")
                     st.metric("挑戰賽最終得分", f"{prob*100:.2f}%")
                     
-                    # 💥 豐富的情緒價值評語區（進階挑戰版）
                     if prob > 0.65:
                         st.balloons()
                         st.success("👑 **商業傳奇！終極鐵桿客滿經理人！**")
