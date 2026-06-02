@@ -1,0 +1,9 @@
+[theme]
+# 這邊會把 Streamlit 預設的橘紅色（#FF4B4B）覆蓋掉
+# 這裡幫你配了跟你 UI 按鈕一樣的深藍色
+primaryColor = "#1E4287"
+
+# 如果你未來想微調其他地方，也可以順便參考這些設定（可加可不加）：
+# backgroundColor = "#FFFFFF"          # 網頁主背景色
+# secondaryBackgroundColor = "#F0F2F6"  # 側邊欄或元件背景色
+# textColor = "#31333F"                 # 主要文字顏色
