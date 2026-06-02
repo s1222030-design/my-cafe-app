@@ -1,4 +1,0 @@
-my-cafe-app/
-├── .streamlit/
-│   └── config.toml  <-- 在這裡控制外觀！
-└── app.py
