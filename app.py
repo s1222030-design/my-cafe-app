@@ -107,12 +107,25 @@ def show_random_result_image(image_list):
 # 🎬 畫面邏輯控制
 # =====================================================================
 
-# --- 頁面 A：封面與模式選擇 ---
+# --- 頁面 A：封面與模式選擇 (用妳自己的圖片版) ---
 if st.session_state.game_mode is None:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("""
+    
+    # ─── 🛠️ 新增這段：讀取並編碼妳的本地圖片 ───
+    try:
+        # ⚠️ 這裡要改成妳實際的圖片檔名，例如 "cover.jpg" 或 "my_cafe.png"
+        with open("那我們就走吧.jpg", "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        img_src = f"data:image/jpeg;base64,{encoded_string}"
+    except FileNotFoundError:
+        # 如果不小心找不到檔案，就用原本的預設網址擋一下，避免網頁掛掉
+        img_src = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200"
+    # ──────────────────────────────────────
+
+    st.markdown(f"""
         <div class="cover-container">
-            <img class="cover-image" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200">
+            # 👇 這裡的 src="https://..." 已經換成一個變數 img_src 了
+            <img class="cover-image" src="{img_src}">
             <h1 style="color: #2A5290; font-size: 3rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">AI Cafe Tycoon</h1>
             <p style="color: #6b5b4b; font-size: 1.2rem; font-weight: 500; margin-bottom: 30px;">
                 歡迎來到商業數據戰場！請選擇您的挑戰模式：
@@ -129,7 +142,7 @@ if st.session_state.game_mode is None:
         if st.button("進階模式：17點策略挑戰", use_container_width=True):
             st.session_state.game_mode = "advanced"
             st.rerun()
-
+            
 # --- 頁面 B：遊戲內容 ---
 else:
     saved_data = load_model()
