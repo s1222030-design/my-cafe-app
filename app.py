@@ -52,7 +52,7 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-2px) !important;
         box-shadow: 0 12px 25px rgba(42, 82, 144, 0.4) !important;
-        color: #ffffff !important;
+        color: ##F7F5F2 !important;
     }
     
     /* 確保按鈕內部的 Streamlit 文字元件也強制繼承 #F7F5F2 */
@@ -60,12 +60,12 @@ st.markdown("""
         color: #F7F5F2 !important;
     }
     .stButton > button:hover p {
-        color: #ffffff !important;
+        color: ##F7F5F2 !important;
     }
     
     /* 高質感卡片框 */
     .game-card {
-        background-color: #ffffff;
+        background-color: #F7F5F2;
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.04);
