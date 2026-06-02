@@ -187,21 +187,21 @@ else:
                     st.balloons()
                     st.success("🎉 **餐飲界降臨的救世主神店！！！**")
                     # 👇 丟入神店圖片池，程式會自己 3 抽 1
-                    show_random_result_image(["god1.png", "god2.png", "god3.png", "god4.png", "god5.png", "god6.png"]) 
+                    show_random_result_image(["god1.jpg", "god2.jpg", "god3.jpg", "god4.jpg", "god5.jpg", "god6.jpg"]) 
                     st.markdown("> **AI 評價**：天啊！這到底是什麼完美的神仙配置？！妳開的不是咖啡廳，是信仰中心吧！")
                 elif prob > 0.45:
                     st.success("☕ **穩紮穩打的排隊名店！**")
                     # 👇 丟入好店圖片池，2 抽 1
-                    show_random_result_image(["good1.png", "good2.png", "good3.png", "good4.png", "good5.png", "good6.png"]) 
+                    show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"]) 
                     st.markdown("> **AI 評價**：非常精準的商業眼光！這套配置完全踩中了顧客的痛點。")
                 elif prob > 0.20:
                     st.warning(" 🥶 **生意冷清的勉強度日小店...**")
-                    show_random_result_image(["bad1.png", "bad2.png", "bad3.png", "bad4.png", "bad5.png"]) 
+                    show_random_result_image(["bad1.jpg", "bad2.jpg", "bad3.jpg", "bad4.jpg", "bad5.jpg"]) 
                     st.markdown("> **AI 評價**：唔... 現場氣氛有點尷尬。店裡雖然偶爾有一兩桌客人。")
                 else:
                     st.error(" 😭 **慘不忍睹！正面臨倒閉危機！**")
                     # 👇 丟入倒閉圖片池
-                    show_random_result_image(["die1.png", "die2.png", "die3.png", "die4.png", "die5.png", "die6.png"]) 
+                    show_random_result_image(["die1.jpg", "die2.jpg", "die3.jpg", "die4.jpg", "die5.jpg", "die6.jpg"]) 
                     st.markdown("> **AI 評價**：逼波逼波逼波！根本爛！這是一個連冷氣吹出來都是絕望味道的配置。")
 
     # --- 關卡二：17點策略挑戰 ---
@@ -255,13 +255,13 @@ else:
                     if prob > 0.65:
                         st.balloons()
                         st.success("👑 **商業傳奇！終極鐵桿客滿經理人！**")
-                        show_random_result_image(["god1.png", "god2.png", "god3.png", "god4.png", "god5.png", "god6.png"])
+                        show_random_result_image(["god1.jpg", "god2.jpg", "god3.jpg", "god4.jpg", "god5.jpg", "god6.jpg"])
                         st.markdown("> **AI 評定**：跪了！妳就是高難度極限挑戰的華爾街之狼！")
                     elif prob > 0.45:
                         st.success("🤝 **精明過人的創業智多星！**")
-                        show_random_result_image(["good1.png", "good2.png", "good3.png", "good4.png", "good5.png", "good6.png"])
+                        show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"])
                         st.markdown("> **AI 評定**：太厲害了！這算盤打得真響！")
                     else:
                         st.warning(" 🤕 **預算沒超支，但顧客不買單... 遺憾落敗！**")
-                        show_random_result_image(["bad1.png", "bad2.png", "bad3.png", "bad4.png", "bad5.png", "die1.png", "die2.png", "die3.png", "die4.png", "die5.png", "die6.png"])
+                        show_random_result_image(["bad1.jpg", "bad2.jpg", "bad3.jpg", "bad4.jpg", "bad5.jpg", "die1.jpg", "die2.jpg", "die3.jpg", "die4.jpg", "die5.jpg", "die6.jpg"])
                         st.markdown("> **AI 評定**：可惜了！咖啡廳變成了「蚊子館生態園區」。")
