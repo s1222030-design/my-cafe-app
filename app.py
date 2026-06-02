@@ -211,7 +211,7 @@ else:
                 cheap = st.slider("投資 CP值與價格", 1, 5, 1)
                 music = st.slider("投資 音樂環境", 1, 5, 1)
             
-            st.markdown("#### 加值策略配置 (完美同行並列)")
+            st.markdown("#### 加值策略配置")
             c_welfare3, c_welfare4 = st.columns(2)
             with c_welfare3:
                 socket = st.radio("插座服務 (提供 = 1分)", ["不提供", "提供"], horizontal=True)
