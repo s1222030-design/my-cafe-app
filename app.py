@@ -124,7 +124,6 @@ if st.session_state.game_mode is None:
 
     st.markdown(f"""
         <div class="cover-container">
-            # 👇 這裡的 src="https://..." 已經換成一個變數 img_src 了
             <img class="cover-image" src="{img_src}">
             <h1 style="color: #2A5290; font-size: 3rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">AI Cafe Tycoon</h1>
             <p style="color: #6b5b4b; font-size: 1.2rem; font-weight: 500; margin-bottom: 30px;">
