@@ -7,21 +7,34 @@ import random  # 👈 1. 導入隨機套件！
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 終極 CSS 注入 (王漢宗特黑體 + 質感寬字距版)
+# 2. 終極 CSS 注入 (真正引入網路字體 + 強制拉開字距)
 st.markdown("""
     <style>
-    /* ─── 🛠️ 新增：指定全網頁字體為王漢宗特黑體，並把字距拉開 8px ─── */
-    html, body, [data-testid="stAppViewContainer"], .stApp, p, h1, h2, h3, span, label, button {
-        font-family: "HanWangUltBlk", "王漢宗特黑體繁", "WT014", "Microsoft JhengHei", sans-serif !important;
-        letter-spacing: 8px !important; /* 👈 字與字的間距開 8px */
+    /* ─── 1. 從網路下載王漢宗特黑體 (精確開源 TTF 檔案) ─── */
+    @font-face {
+        font-family: 'HanWangUltBlk';
+        src: url('https://cdn.jsdelivr.net/gh/scandrial/free-fonts@master/Traditional-Chinese/HanWangUltBlk.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
     }
 
-    /* 修正按鈕內文字的微調，確保排版不被字距撐壞 */
+    /* ─── 2. 強制洗腦 Streamlit 所有元件：全面換字體＋字距 8px ─── */
+    /* 包含網頁主體、文字區塊、標題、滑桿文字、單選鈕、以及按鈕 */
+    html, body, .main, p, h1, h2, h3, span, label, li,
+    [data-testid="stAppViewContainer"] *, 
+    [data-testid="stMarkdownContainer"] p,
+    .stSlider label, .stSelectbox label, .stRadio label,
+    .stButton > button, .stButton > button p {
+        font-family: 'HanWangUltBlk', sans-serif !important;
+        letter-spacing: 8px !important; /* 👈 實打實的字距 8px */
+    }
+
+    /* ─── 3. 版面微調修正（避免字距把按鈕撐歪） ─── */
     .stButton > button p {
-        margin-right: -8px !important; 
+        margin-right: -8px !important; /* 扣回最後一個字的字距，讓文字居中 */
     }
-    /* ───────────────────────────────────────────────────────── */
-
+    
+    /* 以下維持原有的美美樣式設定 */
     .stApp, .main { 
         background-color: #F7F5F2 !important; 
     }
@@ -125,12 +138,10 @@ if st.session_state.game_mode is None:
     
     # ─── 🛠️ 新增這段：讀取並編碼妳的本地圖片 ───
     try:
-        # ⚠️ 這裡要改成妳實際的圖片檔名，例如 "cover.jpg" 或 "my_cafe.png"
         with open("那我們就走吧.jpg", "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
         img_src = f"data:image/jpeg;base64,{encoded_string}"
     except FileNotFoundError:
-        # 如果不小心找不到檔案，就用原本的預設網址擋一下，避免網頁掛掉
         img_src = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200"
     # ──────────────────────────────────────
 
@@ -214,7 +225,8 @@ else:
                     st.markdown("> **AI 評價**：天啊！這到底是什麼完美的神仙配置？！妳開的不是咖啡廳，是信仰中心吧！")
                 elif prob > 0.45:
                     st.success("☕ **穩紮穩打的排隊名店！**")
-                    show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"]) 
+                    show_random_image_list = ["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"]
+                    show_random_result_image(show_random_image_list) 
                     st.markdown("> **AI 評價**：非常精準的商業眼光！這套配置完全踩中了顧客的痛點。")
                 elif prob > 0.20:
                     st.warning(" 🥶 **生意冷清的勉強度日小店...**")
@@ -283,6 +295,6 @@ else:
                         show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"])
                         st.markdown("> **AI 評定**：太厲害了！這算盤打得真響！")
                     else:
-                        st.warning(" 🤕 **預算沒超支，打顧客不買單... 遺憾落敗！**")
+                        st.warning(" 🤕 **預算沒超支，但顧客不買單... 遺憾落敗！**")
                         show_random_result_image(["bad1.jpg", "bad2.jpg", "bad3.jpg", "bad4.jpg", "bad5.jpg", "die1.jpg", "die2.jpg", "die3.jpg", "die4.jpg", "die5.jpg", "die6.jpg"])
                         st.markdown("> **AI 評定**：可惜了！咖啡廳變成了「蚊子館生態園區」。")
