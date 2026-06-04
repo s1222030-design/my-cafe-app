@@ -7,7 +7,7 @@ import random  # 👈 1. 導入隨機套件！
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 終極 CSS 注入 (真正引入網路字體 + 強制拉開字距)
+# 2. 終極 CSS 注入 (真正引入網路字體 + 調整為超質感 5px 字距)
 st.markdown("""
     <style>
     /* ─── 1. 從網路下載王漢宗特黑體 (精確開源 TTF 檔案) ─── */
@@ -18,20 +18,19 @@ st.markdown("""
         font-style: normal;
     }
 
-    /* ─── 2. 強制洗腦 Streamlit 所有元件：全面換字體＋字距 8px ─── */
-    /* 包含網頁主體、文字區塊、標題、滑桿文字、單選鈕、以及按鈕 */
+    /* ─── 2. 強制洗腦 Streamlit 所有元件：全面換字體＋字距 5px ─── */
     html, body, .main, p, h1, h2, h3, span, label, li,
     [data-testid="stAppViewContainer"] *, 
     [data-testid="stMarkdownContainer"] p,
     .stSlider label, .stSelectbox label, .stRadio label,
     .stButton > button, .stButton > button p {
         font-family: 'HanWangUltBlk', sans-serif !important;
-        letter-spacing: 8px !important; /* 👈 實打實的字距 8px */
+        letter-spacing: 5px !important; /* 👈 完美平衡：字距調至 5px */
     }
 
-    /* ─── 3. 版面微調修正（避免字距把按鈕撐歪） ─── */
+    /* ─── 3. 版面微調修正（配合 5px 字距微調按鈕邊距，確保完美居中） ─── */
     .stButton > button p {
-        margin-right: -8px !important; /* 扣回最後一個字的字距，讓文字居中 */
+        margin-right: -5px !important; 
     }
     
     /* 以下維持原有的美美樣式設定 */
@@ -136,7 +135,7 @@ def show_random_result_image(image_list):
 if st.session_state.game_mode is None:
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # ─── 🛠️ 新增這段：讀取並編碼妳的本地圖片 ───
+    # ─── 🛠️ 讀取並編碼妳的本地圖片 ───
     try:
         with open("那我們就走吧.jpg", "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
