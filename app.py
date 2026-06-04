@@ -7,9 +7,21 @@ import random  # 👈 1. 導入隨機套件！
 # 1. 網頁基本設定
 st.set_page_config(page_title="AI Cafe Tycoon", page_icon="☕", layout="wide")
 
-# 2. 終極 CSS 注入
+# 2. 終極 CSS 注入 (王漢宗特黑體 + 質感寬字距版)
 st.markdown("""
     <style>
+    /* ─── 🛠️ 新增：指定全網頁字體為王漢宗特黑體，並把字距拉開 8px ─── */
+    html, body, [data-testid="stAppViewContainer"], .stApp, p, h1, h2, h3, span, label, button {
+        font-family: "HanWangUltBlk", "王漢宗特黑體繁", "WT014", "Microsoft JhengHei", sans-serif !important;
+        letter-spacing: 8px !important; /* 👈 字與字的間距開 8px */
+    }
+
+    /* 修正按鈕內文字的微調，確保排版不被字距撐壞 */
+    .stButton > button p {
+        margin-right: -8px !important; 
+    }
+    /* ───────────────────────────────────────────────────────── */
+
     .stApp, .main { 
         background-color: #F7F5F2 !important; 
     }
@@ -194,16 +206,14 @@ else:
                 st.markdown("---")
                 st.metric("AI 預估客滿機率", f"{prob*100:.2f}%")
                 
-                # 🖼️ 3. 隨機圖片池設定（妳可以自由把新圖片檔名加進去中括號裡喔！）
+                # 🖼️ 3. 隨機圖片池設定
                 if prob > 0.75:
                     st.balloons()
                     st.success("🎉 **餐飲界降臨的救世主神店！！！**")
-                    # 👇 丟入神店圖片池，程式會自己 3 抽 1
                     show_random_result_image(["god1.jpg", "god2.jpg", "god3.jpg", "god4.jpg", "god5.jpg", "god6.jpg"]) 
                     st.markdown("> **AI 評價**：天啊！這到底是什麼完美的神仙配置？！妳開的不是咖啡廳，是信仰中心吧！")
                 elif prob > 0.45:
                     st.success("☕ **穩紮穩打的排隊名店！**")
-                    # 👇 丟入好店圖片池，2 抽 1
                     show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"]) 
                     st.markdown("> **AI 評價**：非常精準的商業眼光！這套配置完全踩中了顧客的痛點。")
                 elif prob > 0.20:
@@ -212,7 +222,6 @@ else:
                     st.markdown("> **AI 評價**：唔... 現場氣氛有點尷尬。店裡雖然偶爾有一兩桌客人。")
                 else:
                     st.error(" 😭 **慘不忍睹！正面臨倒閉危機！**")
-                    # 👇 丟入倒閉圖片池
                     show_random_result_image(["die1.jpg", "die2.jpg", "die3.jpg", "die4.jpg", "die5.jpg", "die6.jpg"]) 
                     st.markdown("> **AI 評價**：逼波逼波逼波！根本爛！這是一個連冷氣吹出來都是絕望味道的配置。")
 
@@ -274,6 +283,6 @@ else:
                         show_random_result_image(["good1.jpg", "good2.jpg", "good3.jpg", "good4.jpg", "good5.jpg", "good6.jpg"])
                         st.markdown("> **AI 評定**：太厲害了！這算盤打得真響！")
                     else:
-                        st.warning(" 🤕 **預算沒超支，但顧客不買單... 遺憾落敗！**")
+                        st.warning(" 🤕 **預算沒超支，打顧客不買單... 遺憾落敗！**")
                         show_random_result_image(["bad1.jpg", "bad2.jpg", "bad3.jpg", "bad4.jpg", "bad5.jpg", "die1.jpg", "die2.jpg", "die3.jpg", "die4.jpg", "die5.jpg", "die6.jpg"])
                         st.markdown("> **AI 評定**：可惜了！咖啡廳變成了「蚊子館生態園區」。")
